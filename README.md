@@ -96,10 +96,10 @@ $$A=\frac{\Omega_{1}^2 - \Omega_{L}\Omega_{u}}{\Omega_{1}(\Omega_{u} - \Omega_{L
 
 $$B=\frac{\Omega_{2}^2 - \Omega_{L}\Omega_{u}}{\Omega_{2}(\Omega_{u} - \Omega_{L})}$$
 
-El valor de A da un resultado de ... y el valor de B da un resultado de ...., como el valor de A es el mas pequeño de los dos, se va a convertir en el Ω2 del paso bajo, y Ω1 va a ser 1 ya que se esta normalizando:
+El valor de A da un resultado de 2,034 y el valor de B da un resultado de 2,264, como el valor de A es el mas pequeño de los dos, se va a convertir en el Ω2 del paso bajo, y Ω1 va a ser 1 ya que se esta normalizando:
 
 $$
-n = \frac{\log_{10} \left( \frac{10^{(3/10)}-1}{10^{(20/10)}-1} \right)}{2 \log_{10} \left( \frac{1}{3} \right)} = 3
+n = \frac{\log_{10} \left( \frac{10^{(3/10)}-1}{10^{(20/10)}-1} \right)}{2 \log_{10} \left( \frac{1}{2,034} \right)} = 3,23
 $$
 
 Dando como resultado que el orden del filtro sea 4. Debido a esto se va a escoger un polimio característico como se puede observar en el código de MATLAB "filtro_pasabanda.m":
