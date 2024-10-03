@@ -52,15 +52,29 @@ plt.show()
 
 # FFT para analizar el espectro de frecuencias
 N = len(filtered_emg)
-f = np.fft.fftfreq(N, 1/fs)
 fft_values = np.abs(fft(filtered_emg))
+f = np.fft.fftfreq(N, 1/fs)
+
+# Tomar solo la mitad positiva del espectro
+fft_values = fft_values[:N//2]
+f = f[:N//2]
+
+# Encontrar la frecuencia dominante
+dominant_freq = f[np.argmax(fft_values)]
+print(f"Frecuencia dominante: {dominant_freq:.2f} Hz")
+
+# Calcular la desviación estándar del espectro
+std_fft = np.std(fft_values)
+print(f"Desviación estándar del espectro: {std_fft:.2f}")
 
 # Graficar el espectro de frecuencias
 plt.figure(figsize=(8, 4))
-plt.plot(f[:N//2], fft_values[:N//2])
+plt.plot(f, fft_values)
 plt.title('Espectro de Frecuencias de la Señal Filtrada')
 plt.xlabel('Frecuencia [Hz]')
 plt.ylabel('Amplitud')
+plt.axvline(x=dominant_freq, color='r', linestyle='--', label=f'Frecuencia Dominante: {dominant_freq:.2f} Hz')
+plt.legend()
 plt.show()
 
 # Tamaño de la ventana (ajústalo si es necesario)
@@ -70,6 +84,7 @@ num_windows = len(filtered_emg) // window_size + (len(filtered_emg) % window_siz
 # Matriz para almacenar los espectros de frecuencia y medias
 frequency_spectra = np.zeros((num_windows, window_size // 2))
 means = np.zeros(num_windows)
+std_devs = np.zeros(num_windows)  # Para almacenar la desviación estándar por ventana
 
 # Se recorre la señal en ventanas
 for i in range(num_windows):
@@ -84,13 +99,16 @@ for i in range(num_windows):
         window *= np.hanning(window_size)
 
     # Calcula la FFT
-    fft_values = fft(window)
-    magnitude = np.abs(fft_values)
+    fft_window = fft(window)
+    magnitude = np.abs(fft_window)
     magnitude = 2 / window_size * magnitude
     frequency_spectra[i] = magnitude[: window_size // 2]
 
     # Calcular la media de la ventana
     means[i] = np.mean(window)
+
+    # Calcular la desviación estándar del espectro de la ventana
+    std_devs[i] = np.std(magnitude[: window_size // 2])
 
 # Calcula las frecuencias correspondientes
 frequencies = np.fft.fftfreq(window_size, 1/fs)[:window_size // 2]
@@ -106,6 +124,10 @@ plt.legend()
 plt.xlim(0, fs/2)
 plt.show()
 
+# Calcular la desviación estándar general del análisis espectral
+overall_std_fft = np.std(frequency_spectra)
+print(f"Desviación estándar general del análisis espectral: {overall_std_fft:.2f}")
+
 # Última media
 last_mean = np.mean(filtered_emg[-window_size:])
 
@@ -113,7 +135,10 @@ last_mean = np.mean(filtered_emg[-window_size:])
 overall_mean = np.mean(filtered_emg[:-window_size]) if len(filtered_emg) > window_size else np.mean(filtered_emg)
 
 # Test t para comparar la última ventana con el resto de la señal
-t_stat, p_value = stats.ttest_ind(filtered_emg[-window_size:], filtered_emg[:-window_size]) if len(filtered_emg) > window_size else (np.nan, np.nan)
+if len(filtered_emg) > window_size:
+    t_stat, p_value = stats.ttest_ind(filtered_emg[-window_size:], filtered_emg[:-window_size])
+else:
+    t_stat, p_value = (np.nan, np.nan)
 
 # Imprimir los resultados
 print(f"Última media: {last_mean}")
